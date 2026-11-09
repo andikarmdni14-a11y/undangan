@@ -1,0 +1,278 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   Design tokens — tema Soft Romance (PRD §3)
+   Proporsi 60-30-10: Alabaster (latar) · Dusty Rose (kartu/basis 3D) · Deep Burgundy (aksen)
+   ========================================================================== */
+@theme {
+  /* Warna inti */
+  --color-alabaster: #fafafa;
+  --color-rose: #dcae96;
+  --color-burgundy: #722f37;
+
+  /* Turunan untuk kebutuhan UI (hover, border, teks) */
+  --color-rose-50: #f8eee8;
+  --color-rose-100: #f1ddd2;
+  --color-rose-300: #e6c5b4;
+  --color-rose-600: #c48f75;
+  --color-burgundy-700: #5c252c;
+  --color-burgundy-900: #3f191e;
+  --color-ink: #3d2b2e; /* teks paragraf: kontras 12:1 di alabaster, 6.6:1 di rose */
+  --color-ink-muted: #6e5559; /* teks sekunder: kontras 6.4:1 di alabaster */
+
+  /* Tipografi */
+  --font-display: var(--font-tenor), "Marcellus", Georgia, serif;
+  --font-sans: var(--font-karla), "Manrope", system-ui, sans-serif;
+
+  /* Skala tipe klasik (Bringhurst): 12 · 14 · 16 · 18 · 21 · 24 · 36 · 48 · 60 · 72 */
+  --text-caption: 0.75rem;
+  --text-caption--line-height: 1.5;
+  --text-small: 0.875rem;
+  --text-small--line-height: 1.55;
+  --text-body: 1rem;
+  --text-body--line-height: 1.65;
+  --text-lead: 1.125rem;
+  --text-lead--line-height: 1.6;
+  --text-h4: 1.3125rem;
+  --text-h4--line-height: 1.35;
+  --text-h3: 1.5rem;
+  --text-h3--line-height: 1.3;
+  --text-h2: 2.25rem;
+  --text-h2--line-height: 1.2;
+  --text-h1: 3rem;
+  --text-h1--line-height: 1.1;
+  --text-display: 3.75rem;
+  --text-display--line-height: 1.05;
+  --text-hero: 4.5rem;
+  --text-hero--line-height: 1;
+
+  /* Radius: kartu biasa vs bentuk kubah (arch) */
+  --radius-soft: 1.25rem;
+
+  /* Gerak */
+  --ease-romance: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Bentuk kubah/jendela klasik untuk kartu, bingkai foto & thumbnail galeri (PRD §3). */
+@utility arch {
+  border-radius: 9999px 9999px var(--radius-soft) var(--radius-soft);
+  overflow: hidden;
+}
+@utility arch-top {
+  border-radius: 9999px 9999px 0 0;
+  overflow: hidden;
+}
+
+@layer base {
+  html {
+    background-color: var(--color-alabaster);
+    color: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+  }
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    color: var(--color-burgundy);
+    text-wrap: balance;
+  }
+  p { text-wrap: pretty; }
+  ::selection {
+    background-color: var(--color-rose-300);
+    color: var(--color-burgundy-900);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-burgundy);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+}
+
+/* PRD §7 — hormati prefers-reduced-motion untuk seluruh animasi CSS. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Kunci scroll halaman saat lightbox galeri terbuka. */
+html:has(dialog[open]) {
+  overflow: hidden;
+}
+
+/* ==========================================================================
+   Fase 9 — utilitas animasi ringan (CSS murni, tanpa JavaScript)
+   ========================================================================== */
+
+/* #18 Gradasi warna yang mengalir pelan di dalam teks judul */
+@utility text-flow {
+  background-image: linear-gradient(100deg, var(--color-burgundy) 0%, var(--color-rose-600) 30%, var(--color-burgundy) 55%, var(--color-burgundy-700) 80%, var(--color-burgundy) 100%);
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: text-flow 9s ease-in-out infinite alternate;
+}
+@keyframes text-flow {
+  to { background-position: 100% 0; }
+}
+
+/* #33 Garis bawah yang merayap dari kiri ke kanan saat hover/fokus */
+@utility link-underline {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0% 1px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size 0.4s var(--ease-romance);
+  &:hover, &:focus-visible { background-size: 100% 1px; }
+}
+
+/* #30 Tombol Instagram bulat: warna mengisi dari bawah ke atas */
+@utility fill-up {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--color-burgundy);
+    transform: translateY(101%);
+    transition: transform 0.45s var(--ease-romance);
+  }
+  &:hover::before, &:focus-visible::before { transform: translateY(0); }
+  &:hover, &:focus-visible { color: var(--color-alabaster); border-color: var(--color-burgundy); }
+}
+
+/* #47 Kartu terangkat dengan bayangan blur yang melebar saat hover */
+@utility lift {
+  transition: transform 0.45s var(--ease-romance), box-shadow 0.45s var(--ease-romance);
+  box-shadow: 0 10px 30px -24px rgb(114 47 55 / 0.45);
+  @media (hover: hover) {
+    &:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 28px 60px -28px rgb(114 47 55 / 0.55);
+    }
+  }
+}
+
+/* #40 Skeleton shimmer lembut sebelum gambar/data dimuat */
+@utility shimmer {
+  background: linear-gradient(100deg, var(--color-rose-100) 30%, var(--color-rose-50) 50%, var(--color-rose-100) 70%);
+  background-size: 300% 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+@keyframes shimmer {
+  from { background-position: 100% 0; }
+  to { background-position: 0 0; }
+}
+
+/* #27 Jarum jam ikon berputar halus saat hover pada kartu induk */
+.clock-hand {
+  transform-box: view-box;
+  transform-origin: 12px 12px;
+  transition: transform 1.2s var(--ease-romance);
+}
+.group:hover .clock-hand--min { transform: rotate(360deg); }
+.group:hover .clock-hand--hour { transform: rotate(30deg); }
+
+/* #16 Marquee horizontal (jeda saat hover; berhenti total pada reduced motion) */
+@keyframes marquee {
+  to { transform: translateX(-50%); }
+}
+.marquee-track { animation: marquee 38s linear infinite; }
+.marquee:hover .marquee-track { animation-play-state: paused; }
+
+/* #15 Teks buram yang perlahan menjadi tajam (dipicu sekali saat terlihat) */
+.blur-reveal {
+  filter: blur(10px);
+  opacity: 0;
+  transition: filter 1.4s var(--ease-romance), opacity 1.4s var(--ease-romance);
+}
+.blur-reveal[data-in="true"] { filter: blur(0); opacity: 1; }
+
+/* #5 Pre-loader: hilang sendiri via CSS bila JavaScript terlambat (tanpa ketergantungan JS) */
+.preloader {
+  animation: preloader-out 0.6s ease 2.6s forwards;
+}
+.preloader[data-done="true"] {
+  animation: preloader-out 0.5s ease forwards;
+}
+@keyframes preloader-out {
+  to { opacity: 0; visibility: hidden; }
+}
+.preloader-draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: preloader-draw 1.6s var(--ease-romance) forwards, preloader-spin 6s linear infinite;
+  transform-origin: 50% 50%;
+}
+@keyframes preloader-draw { to { stroke-dashoffset: 0; } }
+@keyframes preloader-spin { to { transform: rotate(360deg); } }
+
+/* #28 Glassmorphism adaptif — hanya pada tier efek "kaya" (perangkat kuat) */
+html[data-fx="rich"] .glass-band {
+  background-color: rgb(248 238 232 / 0.62);
+  backdrop-filter: blur(14px) saturate(1.15);
+  -webkit-backdrop-filter: blur(14px) saturate(1.15);
+}
+html[data-fx="rich"] .glass-clear { background-color: transparent; }
+
+/* #37 Getar halus input saat validasi gagal */
+@keyframes shake {
+  10%, 90% { transform: translateX(-1px); }
+  20%, 80% { transform: translateX(3px); }
+  30%, 50%, 70% { transform: translateX(-6px); }
+  40%, 60% { transform: translateX(6px); }
+}
+.shake { animation: shake 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track, .text-flow, .shimmer, .preloader-draw { animation: none !important; }
+  .blur-reveal { filter: none; opacity: 1; }
+}
+
+/* #31 Riak konsentris CTA */
+@keyframes ripple {
+  from { transform: scale(0); opacity: 0.55; }
+  to { transform: scale(1); opacity: 0; }
+}
+
+/* #8 Kartu flip 180° — hanya perangkat dengan kursor presisi; layar sentuh: kedua muka bertumpuk */
+.flip-hint { display: none; }
+@media (hover: hover) and (pointer: fine) {
+  .flip-card { perspective: 1400px; }
+  .flip-inner {
+    display: grid;
+    transform-style: preserve-3d;
+    transition: transform 0.9s var(--ease-romance);
+  }
+  .flip-face {
+    grid-area: 1 / 1;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    min-height: 22rem;
+  }
+  .flip-front { border-radius: 9999px 9999px var(--radius-soft) var(--radius-soft); }
+  .flip-back {
+    transform: rotateY(180deg);
+    border-radius: 9999px 9999px var(--radius-soft) var(--radius-soft);
+    padding-top: 4rem;
+  }
+  .flip-hint { display: block; }
+  .flip-card:hover .flip-inner,
+  .flip-card:focus-within .flip-inner { transform: rotateY(180deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .flip-inner { transition: none !important; }
+}
